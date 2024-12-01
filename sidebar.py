@@ -37,9 +37,9 @@ class Sidebar:
         for i, tower in enumerate(self.towers):
             x = i * (self.tower_width + self.padding)+5
             y = 7
-            screen.blit(tower['image_large'], (x-5, y-7))  # Usa la imagen grande para la barra lateral
+            screen.blit(tower['image_large'], (x, y))  # Usa la imagen grande para la barra lateral
             if self.selected_tower == i:
-                pg.draw.rect(screen, (255, 255, 255), (x, y, self.tower_width, self.tower_height), 2)  # Marco de selección
+                pg.draw.rect(screen, (255, 255, 255), (x-5, y-7, self.tower_width, self.tower_height), 2)  # Marco de selección
 
             # Dibujar el nombre o el costo de la torre
             text_surface = self.font.render(tower['name'], True, (255, 255, 255))
