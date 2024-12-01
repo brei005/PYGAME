@@ -29,9 +29,7 @@ class Mapa:
 
     def draw(self, display):
         """Dibuja el mapa en la pantalla con un gap entre los bloques."""
-        gap_x = 5  # Espacio horizontal entre los bloques
-        gap_y = 2  # Espacio vertical entre los bloques
-
+        
         for y, row in enumerate(self.map_data):  # Iterar filas (y)
             for x, tile in enumerate(row):  # Iterar columnas (x)
                 if tile in self.textures:

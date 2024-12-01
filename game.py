@@ -4,6 +4,7 @@ import sys
 from settings import *
 from mapa import Mapa
 from tower import *
+from sidebar import Sidebar
 
 class Game:
     def __init__(self):
@@ -11,10 +12,34 @@ class Game:
         self.screen = pg.display.set_mode(RES)
         self.clock = pg.time.Clock()
         self.display = pg.Surface(DISPLAY_SIZE)
-        self.font = pg.font.Font(None, 10)
+        self.font = pg.font.Font(None, 12)
         self.towers = []  # Lista para almacenar torres
-        self.tower_image = pg.image.load("towers/towerB.png").convert_alpha()  # Carga de la imagen
-        self.tower_image = pg.transform.scale(self.tower_image, (10, 15))  # Ajustar dimensiones aquí
+        self.selected_tower = None 
+        self.sidebar = Sidebar(
+            180, 
+            70, 
+            [
+                {
+                    'image_large': pg.transform.scale(pg.image.load("towers/towerA.png").convert_alpha(), (50, 50)),  # Tamaño para la barra
+                    'image_small': pg.transform.scale(pg.image.load("towers/towerA.png").convert_alpha(), (10, 15)),  # Tamaño para el mapa
+                    'name': 'Tower A',
+                    'cost': 10
+                },
+                {
+                    'image_large': pg.transform.scale(pg.image.load("towers/towerB.png").convert_alpha(), (50, 50)),
+                    'image_small': pg.transform.scale(pg.image.load("towers/towerB.png").convert_alpha(), (10, 15)),
+                    'name': 'Tower B',
+                    'cost': 20
+                },
+                {
+                    'image_large': pg.transform.scale(pg.image.load("towers/towerC.png").convert_alpha(), (50, 50)),
+                    'image_small': pg.transform.scale(pg.image.load("towers/towerC.png").convert_alpha(), (10, 15)),
+                    'name': 'Tower C',
+                    'cost': 30
+                }
+            ],
+            self.font
+        )
 
         # Nivel actual
         self.current_level = 1
@@ -47,35 +72,51 @@ class Game:
                 self.handle_click(event.pos)
 
     def handle_click(self, pos):
-        """Maneja el clic del ratón para colocar torres."""
-        tile_coords = self.mapa.detect_tile(pos, RES, DISPLAY_SIZE)
-
-        if tile_coords:
-            grid_x, grid_y = tile_coords
-
-            # Verificar si ya hay una torre en esa posición
-            if not any(tower.position == (grid_x, grid_y) for tower in self.towers):
-                # Colocar una nueva torre
-                self.towers.append(Tower((grid_x, grid_y), self.tower_image))
-                print(f"Torre colocada en ({grid_x}, {grid_y})")
-            else:
-                print("Ya hay una torre en este bloque")
+        """Maneja los clics en la pantalla."""
+        if self.sidebar.rect.collidepoint(pos):  # Si el clic está en la barra lateral
+            self.sidebar.handle_click(pos)
         else:
-            print("Clic fuera de cualquier bloque")
+            # Si hay una torre seleccionada, colócala en el mapa
+            if self.sidebar.selected_tower is not None:
+                tile_coords = self.mapa.detect_tile(pos, RES, DISPLAY_SIZE)
+                if tile_coords:
+                    grid_x, grid_y = tile_coords
+                    if not any(tower.position == (grid_x, grid_y) for tower in self.towers):
+                        selected_tower = self.sidebar.towers[self.sidebar.selected_tower]
+                        self.towers.append(Tower((grid_x, grid_y), selected_tower['image_small']))  # Usa la imagen pequeña
+                        print(f"{selected_tower['name']} colocada en ({grid_x}, {grid_y})")
+                        self.sidebar.selected_tower = None
+
+
+    def handle_sidebar_click(self, pos):
+        """Maneja los clics en la barra lateral."""
+        # Rectángulo de la torre en la barra lateral
+        tower_rect = pg.Rect(0, 0, 50, 40)
+        if tower_rect.collidepoint(pos):
+            # Alternar selección de la torre
+            if self.selected_tower:
+                print("Torre deseleccionada")
+                self.selected_tower = None
+            else:
+                print("Torre seleccionada")
+                self.selected_tower = self.tower_image
+
 
     def draw(self):
-        self.display.fill((0, 0, 0))
-        self.mapa.draw(self.display)
+        # Dibuja el mapa y el contenido en la superficie intermedia
+        self.display.fill((0, 0, 0))  # Fondo negro en la superficie interna
+        self.mapa.draw(self.display)  # Dibuja el mapa en la superficie interna
 
         for tower in self.towers:
             tower.draw(self.display)
-        # Dibujar las torres (donde el mapa tiene un `2`)
-        for y, row in enumerate(self.mapa.map_data):
-            for x, tile in enumerate(row):
-                if tile == 2:
-                    pg.draw.rect(self.display, (255, 0, 0), (x * 10, y * 10, 10, 10))
 
-        self.screen.blit(pg.transform.scale(self.display, self.screen.get_size()), (0, 0))
+        # Escalar la superficie interna y dibujarla en la pantalla principal
+        self.screen.blit(pg.transform.scale(self.display, RES), (0, 0))
+
+        # Dibujar la barra lateral
+        self.sidebar.draw(self.screen)
+
+        pg.display.flip()  # Actualiza la pantalla
 
     def run(self):
         while True:
