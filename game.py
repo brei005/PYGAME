@@ -1,4 +1,3 @@
-# game.py
 import pygame as pg
 import sys
 from settings import *
@@ -8,6 +7,8 @@ from sidebar import Sidebar
 from enemy import *
 from player import *
 from animation import *
+from cloud import Cloud  # Importa la clase Cloud
+
 class Game:
     def __init__(self):
         pg.init()
@@ -71,6 +72,11 @@ class Game:
         self.current_level = 1
         self.load_level(self.current_level)
 
+        # Nube en movimiento
+        self.clouds = [Cloud.create_random_cloud() for _ in range(3)]
+
+          # Velocidad de la nube
+
     def draw_text(self, text, x, y, color=(255, 255, 255)):
         """Dibuja texto en la pantalla."""
         text_surface = self.font.render(text, True, color)
@@ -102,6 +108,11 @@ class Game:
             self.player.add_resources(self.enemy.reward)  # Añade recursos al jugador
             print(f"Enemigo derrotado. Recursos ganados: {self.enemy.reward}")
             self.enemy.health = 0  # Evitar salud negativa
+
+        # Actualizar la nube
+        for cloud in self.clouds:
+            cloud.move()  # Mueve cada nube
+
     def check_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -155,7 +166,6 @@ class Game:
                 print("Torre seleccionada")
                 self.selected_tower = self.tower_image
 
-
     def draw(self):
         """Dibuja el estado del juego en la pantalla."""
         self.display.fill((0, 0, 0))  # Limpiar la pantalla con fondo negro
@@ -188,9 +198,12 @@ class Game:
         resources_text = self.font.render(f"{self.player.resources}", True, (255, 255, 255))
         self.screen.blit(resources_text, (50, RES[1] - 40))  # Texto de recursos
 
+        # Dibujar la nube en movimiento
+        for cloud in self.clouds:
+            cloud.draw(self.screen)
+
         # Actualizar la pantalla
         pg.display.flip()
-
 
     def run(self):
         while True:
