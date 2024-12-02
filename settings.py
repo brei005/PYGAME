@@ -9,5 +9,6 @@ BLOCK_HEIGHT = 5  # Alto de cada bloque
 # Tipos de terreno y texturas
 TERRAIN_TYPES = {
     0: 'assets/pasto.png',  # Terreno por defecto
-    1: 'assets/camino.png',   # Terreno donde se pueden poner tropas
+    1: 'assets/camino.png',  # Camino para enemigos
+    2: 'assets/base.png'     # Terreno para la base
 }

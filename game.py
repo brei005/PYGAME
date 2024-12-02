@@ -8,6 +8,7 @@ from sidebar import Sidebar
 from enemy import *
 from player import *
 from animation import *
+from base import *
 class Game:
     def __init__(self):
         pg.init()
@@ -15,9 +16,22 @@ class Game:
         self.clock = pg.time.Clock()
         self.display = pg.Surface(DISPLAY_SIZE)
         self.font = pg.font.Font(None, 12)
+        # Nivel actual
+        self.current_level = 1
+        self.load_level(self.current_level)
         self.towers = []  # Lista para almacenar torres
         self.selected_tower = None 
         self.projectiles = []
+        self.base = Base(
+            position=self.mapa.base_position,
+            image_paths=[
+                "assets/simbolo/vicuna1.png",
+                "assets/simbolo/vicuna2.png",
+                "assets/simbolo/vicuna3.png",
+                "assets/simbolo/vicuna4.png"
+            ],
+            health=100
+        )
         # Inicializar animación de la moneda
         self.coin_animation = Animation(
             image_paths=[
@@ -67,9 +81,7 @@ class Game:
             self.font
         )
         self.enemy = Enemy((5, 5), "enemies/enemy1.png")
-        # Nivel actual
-        self.current_level = 1
-        self.load_level(self.current_level)
+        
 
     def draw_text(self, text, x, y, color=(255, 255, 255)):
         """Dibuja texto en la pantalla."""
@@ -83,20 +95,25 @@ class Game:
     def update(self):
         """Actualiza el estado del juego."""
         self.coin_animation.update()  # Actualizar la animación de la moneda
-
+        self.base.animation.update()
+        self.mapa.vicuna_animation.update() 
         # Actualizar proyectiles
         for projectile in self.projectiles[:]:
             projectile.update(1 / FPS)  # Actualizar con tiempo basado en FPS
             if projectile.is_finished():
                 self.projectiles.remove(projectile)  # Eliminar proyectil cuando finalice
                 if self.enemy.health > 0:  # Asegurarse de que el enemigo esté vivo
-                    self.enemy.take_damage(projectile.damage)  # Infligir daño basado en el proyectil
+                    for i in self.towers:
+                        self.enemy.take_damage(i.damage)  # Infligir daño basado en el proyectil
 
         # Las torres atacan al enemigo
         for tower in self.towers:
             if self.enemy.health > 0:  # Solo si el enemigo está vivo
                 tower.attack(self.enemy, self.projectiles)
-
+        # Verificar si el enemigo alcanzó la base
+        if self.enemy.health > 0 and self.enemy.grid_position == self.base.position:
+            self.base.take_damage(10)  # Inflige daño a la base
+            self.enemy.health = 0  # Elimina al enemigo
         # Verificar si el enemigo ha sido derrotado
         if self.enemy.health <= 0:
             self.player.add_resources(self.enemy.reward)  # Añade recursos al jugador
@@ -174,11 +191,13 @@ class Game:
         # Dibujar proyectiles
         for projectile in self.projectiles:
             projectile.draw(self.display)
+        
 
         # Dibujar la barra lateral
         self.screen.blit(pg.transform.scale(self.display, RES), (0, 0))
         self.sidebar.draw(self.screen)
-
+        # Dibujar la base
+        self.base.draw(self.screen)
         # Dibujar la animación de la moneda
         self.coin_animation.draw(self.screen)
 

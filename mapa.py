@@ -1,13 +1,33 @@
 # mapa.py
 import pygame as pg
 from settings import *
+from animation import *
 
 class Mapa:
     def __init__(self, filename):
         self.map_data = self.load_map(filename)
         self.textures = self.load_textures()
-        self.font = pg.font.Font(None, 11)  # Tamaño ajustado para mejor visibilidad
-
+        self.font = pg.font.Font(None, 11)
+        self.base_position = self.find_base()  # Encuentra la posición de la base
+        # Animación de la vicuña en el mapa
+        self.vicuna_animation = Animation(
+            image_paths=[
+                "assets/coins/coin1.png",
+                "assets/coins/coin2.png",
+                "assets/coins/coin3.png",
+                "assets/coins/coin4.png"
+            ],
+            position=(0, 0),  # La posición será dinámica según la base
+            frame_duration=150,
+            loop=True,size = (10,15)
+        )
+    def find_base(self):
+        """Encuentra la posición de la base (representada por el valor 2 en el mapa)."""
+        for y, row in enumerate(self.map_data):
+            for x, tile in enumerate(row):
+                if tile == 2:  # 2 representa la base
+                    return (x, y)
+        return None  # Si no se encuentra la base
     def load_map(self, filename):
         """Carga el mapa desde un archivo de texto."""
         with open(filename) as f:
@@ -39,7 +59,14 @@ class Mapa:
                     display.blit(self.textures[tile], (block_x, block_y))
                     # Coordenadas del texto
                     #self.draw_text(f"{x},{y}", block_x + 5, block_y + 5, display=display)
-
+                # Si es la posición de la base, dibujar la vicuña estática
+                # Si es la posición de la base, dibujar la animación de la vicuña
+                if (x, y) == self.base_position:
+                    self.draw_vicuna(display, block_x, block_y)
+    def draw_vicuna(self, display, block_x, block_y):
+        """Dibuja la animación de la vicuña en la posición de la base."""
+        self.vicuna_animation.position = (block_x+5, block_y - 7)  # Ajustar posición
+        self.vicuna_animation.draw(display)
 
     def is_valid_tile(self, x, y):
         """Verifica si el tile en (x, y) es válido para colocar una torre."""
@@ -102,9 +129,3 @@ class Mapa:
         b3 = sign((px, py), v3, v1) < 0.0
 
         return b1 == b2 == b3
-
-
-
-    
-
-

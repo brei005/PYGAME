@@ -2,7 +2,7 @@ import pygame as pg
 import math
 
 class Projectile:
-    def __init__(self, start_pos, target_pos, speed=50):
+    def __init__(self, start_pos, target_pos, speed=10):
         """
         Inicializa un proyectil.
         - `start_pos`: Posición inicial del proyectil (en pantalla).
