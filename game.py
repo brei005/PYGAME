@@ -17,7 +17,7 @@ class Game:
         self.display = pg.Surface(DISPLAY_SIZE)
         self.font = pg.font.Font(None, 12)
         self.towers = []  # Lista para almacenar torres
-        self.selected_tower = None 
+        self.selected_tower = None
         self.projectiles = []
         # Inicializar animación de la moneda
         self.coin_animation = Animation(
@@ -67,15 +67,15 @@ class Game:
             ],
             self.font
         )
-        self.enemy = Enemy((5, 5), "enemies/enemy1.png")
+        self.enemy = Enemy((5, 5), "enemies/enemy1.png", reward=10, health=100, path=None, speed=0.05)
+
+
         # Nivel actual
         self.current_level = 1
         self.load_level(self.current_level)
 
         # Nube en movimiento
         self.clouds = [Cloud.create_random_cloud() for _ in range(3)]
-
-          # Velocidad de la nube
 
     def draw_text(self, text, x, y, color=(255, 255, 255)):
         """Dibuja texto en la pantalla."""
@@ -210,3 +210,4 @@ class Game:
             self.check_events()
             self.update()
             self.draw()
+
