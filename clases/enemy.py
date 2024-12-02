@@ -1,5 +1,5 @@
 import pygame as pg
-from settings import *
+from clases.settings import *
 
 class Enemy:
     def __init__(self, grid_position, texture_path, reward=10, health=100):

@@ -1,7 +1,7 @@
 # mapa.py
 import pygame as pg
-from settings import *
-from animation import *
+from clases.settings import *
+from clases.animation import *
 
 class Mapa:
     def __init__(self, filename):
@@ -54,8 +54,8 @@ class Mapa:
             for x, tile in enumerate(row):  # Iterar columnas (x)
                 if tile in self.textures:
                     # Coordenadas del bloque en pantalla con gap aplicado
-                    block_x = 130 + x * (10 + GAP_x) - y * (10 + GAP_x)
-                    block_y = 80 + x * (5 + GAP_y) + y * (5 + GAP_y)
+                    block_x = INICIO_X + x * (10 + GAP_x) - y * (10 + GAP_x)
+                    block_y = INICIO_Y + x * (5 + GAP_y) + y * (5 + GAP_y)
                     display.blit(self.textures[tile], (block_x, block_y))
                     # Coordenadas del texto
                     #self.draw_text(f"{x},{y}", block_x + 5, block_y + 5, display=display)
@@ -91,8 +91,8 @@ class Mapa:
         for y, row in enumerate(self.map_data):
             for x, tile in enumerate(row):
                 # Coordenadas del bloque con gap aplicado
-                block_x = 130 + x * (10 + GAP_x) - y * (10 + GAP_x)
-                block_y = 80 + x * (5 + GAP_y) + y * (5 +GAP_y)
+                block_x = INICIO_X + x * (10 + GAP_x) - y * (10 + GAP_x)
+                block_y = INICIO_Y + x * (5 + GAP_y) + y * (5 +GAP_y)
 
                 # Coordenadas de los vértices del bloque (isométrico)
                 top = (block_x, block_y)

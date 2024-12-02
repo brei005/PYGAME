@@ -1,6 +1,6 @@
 import pygame as pg
-from animation import Animation
-from settings import *
+from clases.animation import Animation
+from clases.settings import *
 
 class Base:
     def __init__(self, position, image_paths, health=100):

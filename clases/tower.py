@@ -1,9 +1,9 @@
-from settings import *
+from clases.settings import *
 import pygame as pg
 import math
-from enemy import *
+from clases.enemy import *
 import time
-from projectile import *
+from clases.projectile import *
 class Tower:
     def __init__(self, position, image, range=50, damage=10, attack_speed=1.0):
         """
@@ -19,8 +19,8 @@ class Tower:
     
     def draw(self, display):
         """Dibuja la torre en la pantalla."""
-        block_x = 130 + self.position[0] * (10 + GAP_x) - self.position[1] * (10 + GAP_x)
-        block_y = 80 + self.position[0] * (5 + GAP_y) + self.position[1] * (5 + GAP_y)
+        block_x = INICIO_X + self.position[0] * (10 + GAP_x) - self.position[1] * (10 + GAP_x)
+        block_y = INICIO_Y + self.position[0] * (5 + GAP_y) + self.position[1] * (5 + GAP_y)
         display.blit(self.image, (block_x + 4, block_y - 8))  # Ajustar la torre para que quede encima
     def attack(self, enemy, projectiles):
         """
@@ -29,8 +29,8 @@ class Tower:
         current_time = time.time()  # Obtiene el tiempo actual en segundos
         if current_time - self.last_attack_time >= self.attack_speed:
             # Verificar si el enemigo está dentro del rango
-            tower_x = 130 + self.position[0] * (10 + GAP_x) - self.position[1] * (10 + GAP_x)
-            tower_y = 80 + self.position[0] * (5 + GAP_y) + self.position[1] * (5 + GAP_y)
+            tower_x = INICIO_X + self.position[0] * (10 + GAP_x) - self.position[1] * (10 + GAP_x)
+            tower_y = INICIO_Y+ self.position[0] * (5 + GAP_y) + self.position[1] * (5 + GAP_y)
             enemy_x, enemy_y = enemy.get_screen_position()
 
             distance = math.sqrt((tower_x - enemy_x)**2 + (tower_y - enemy_y)**2)

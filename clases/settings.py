@@ -1,6 +1,8 @@
 # settings.py
-RES = (800, 700)
+RES = (900, 700)
 FPS = 60
+INICIO_X=160
+INICIO_Y=80
 GAP_x = 1  # Espacio horizontal entre bloques
 GAP_y = 1  # Espacio vertical entre bloques
 DISPLAY_SIZE = (350, 300)

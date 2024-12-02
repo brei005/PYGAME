@@ -1,20 +1,24 @@
 # game.py
 import pygame as pg
 import sys
-from settings import *
-from mapa import Mapa
-from tower import *
-from sidebar import Sidebar
-from enemy import *
-from player import *
-from animation import *
-from base import *
+from clases.settings import *
+from clases.mapa import Mapa
+from clases.tower import *
+from clases.sidebar import Sidebar
+from clases.enemy import *
+from clases.player import *
+from clases.animation import *
+from clases.base import *
+from clases.startScreen import *
 class Game:
     def __init__(self):
         pg.init()
         self.screen = pg.display.set_mode(RES)
         self.clock = pg.time.Clock()
         self.display = pg.Surface(DISPLAY_SIZE)
+        self.font_title = pg.font.Font("font/ARCADECLASSIC.ttf", 72)  # Fuente grande para el título
+        self.font_option = pg.font.Font("font/ARCADECLASSIC.ttf", 48)  # Fuente mediana para la opción "Start"
+       
         self.font = pg.font.Font(None, 12)
         # Nivel actual
         self.current_level = 1
@@ -22,6 +26,14 @@ class Game:
         self.towers = []  # Lista para almacenar torres
         self.selected_tower = None 
         self.projectiles = []
+        # Pantalla de inicio
+        # Inicializar la pantalla de inicio con fondo
+        self.start_screen = StartScreen(
+            screen=self.screen,
+            font_title=self.font_title,
+            font_option=self.font_option,
+            background_path="assets/fondos/fondoInicio2.jpg"  # Ruta del fondo
+        )
         self.base = Base(
             position=self.mapa.base_position,
             image_paths=[
@@ -209,9 +221,16 @@ class Game:
 
         # Actualizar la pantalla
         pg.display.flip()
-
+    def show_start_screen(self):
+        """Muestra la pantalla de inicio hasta que se presione una tecla."""
+        while True:
+            if self.start_screen.handle_events():  # Salir al presionar una tecla
+                break
+            self.start_screen.draw()  # Dibujar la pantalla de inicio
+            self.clock.tick(FPS)
 
     def run(self):
+        self.show_start_screen() 
         while True:
             self.check_events()
             self.update()
