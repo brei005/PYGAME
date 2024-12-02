@@ -22,10 +22,10 @@ class Sidebar:
             if tower_rect.collidepoint(pos):
                 # Alternar selección de la torre
                 if self.selected_tower == i:
-                    print(f"Torre {i} ({tower['name']}) deseleccionada")
+                    print(f"Torre {tower['name']} deseleccionada")
                     self.selected_tower = None
                 else:
-                    print(f"Torre {i} ({tower['name']}) seleccionada")
+                    print(f"Torre {tower['name']} seleccionada")
                     self.selected_tower = i
 
     def draw(self, screen):
