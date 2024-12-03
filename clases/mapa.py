@@ -8,7 +8,7 @@ class Mapa:
         self.map_data = self.load_map(filename)
         self.textures = self.load_textures()
         self.font = pg.font.Font(None, 11)
-        self.base_position = self.find_base()  # Encuentra la posición de la base
+        
         # Animación de la vicuña en el mapa
         self.vicuna_animation = Animation(
             image_paths=[
@@ -21,17 +21,68 @@ class Mapa:
             frame_duration=150,
             loop=True,size = (10,15)
         )
+        self.base_position = self.find_base()  # Encuentra la posición de la base
+        
+        self.start_position = self.find_start()
+        self.path = self.generate_path() 
+    def find_start(self):
+        """Encuentra el punto de inicio (marcado con 'x') en el mapa."""
+        for y, row in enumerate(self.map_data):
+            for x, tile in enumerate(row):
+                if tile == 'x':
+                    return (x, y)  # Coordenadas del inicio como tupla
+        raise ValueError("El mapa no contiene un punto de inicio ('x').")
+
+    def generate_path(self):
+        """
+        Genera el camino desde el punto de inicio ('x') hasta el punto final ('2').
+        """
+        path = []
+        start = None
+        end = None
+
+        # Buscar el punto de inicio ('x') y el final ('2') en el mapa
+        for y, row in enumerate(self.map_data):
+            for x, tile in enumerate(row):
+                if tile == 'x':
+                    start = (x, y)
+                elif tile == '2':
+                    end = (x, y)
+                elif tile == '1':
+                    path.append((x, y))  # Agregar los tiles del camino
+        
+        
+        if not start or not end:
+            raise ValueError("El mapa debe contener un punto de inicio ('x') y un punto final ('2').")
+
+        # Ordenar los tiles del camino para que formen una trayectoria desde 'x' hasta '2'
+        sorted_path = [start]
+        while path:
+            # Encontrar el tile más cercano al último en el camino
+            last_tile = sorted_path[-1]
+            next_tile = min(path, key=lambda tile: abs(tile[0] - last_tile[0]) + abs(tile[1] - last_tile[1]))
+            sorted_path.append(next_tile)
+            path.remove(next_tile)
+        #print(sorted_path)
+        # Agregar el punto final al camino
+        sorted_path.append(end)
+        return sorted_path
+
     def find_base(self):
         """Encuentra la posición de la base (representada por el valor 2 en el mapa)."""
         for y, row in enumerate(self.map_data):
             for x, tile in enumerate(row):
-                if tile == 2:  # 2 representa la base
+                if tile == '2':  # 2 representa la base
                     return (x, y)
         return None  # Si no se encuentra la base
     def load_map(self, filename):
-        """Carga el mapa desde un archivo de texto."""
+        """
+        Carga el mapa desde un archivo de texto.
+        Permite caracteres como 'x', '1', '2', etc.
+        """
         with open(filename) as f:
-            return [[int(c) for c in row] for row in f.read().split('\n')]
+            return [list(row) for row in f.read().strip().split('\n')]
+
 
     def load_textures(self):
         """Carga las texturas según los tipos de terreno definidos."""

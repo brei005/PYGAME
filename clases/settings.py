@@ -10,7 +10,9 @@ BLOCK_WIDTH = 10  # Ancho de cada bloque
 BLOCK_HEIGHT = 5  # Alto de cada bloque
 # Tipos de terreno y texturas
 TERRAIN_TYPES = {
-    0: 'assets/pasto.png',  # Terreno por defecto
-    1: 'assets/camino.png',  # Camino para enemigos
-    2: 'assets/base.png'     # Terreno para la base
+    '0': 'assets/grass.png',  # Terreno vacío
+    '1': 'assets/path.png',   # Camino
+    '2': 'assets/base.png',   # Base
+    'x': 'assets/start.png'   # Inicio
 }
+

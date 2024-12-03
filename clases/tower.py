@@ -22,20 +22,50 @@ class Tower:
         block_x = INICIO_X + self.position[0] * (10 + GAP_x) - self.position[1] * (10 + GAP_x)
         block_y = INICIO_Y + self.position[0] * (5 + GAP_y) + self.position[1] * (5 + GAP_y)
         display.blit(self.image, (block_x + 4, block_y - 8))  # Ajustar la torre para que quede encima
-    def attack(self, enemy, projectiles):
+    def attack(self, enemies, projectiles,player):
         """
-        Ataca al enemigo si está dentro del rango y la torre está lista para disparar.
+        Ataca al enemigo más cercano dentro del rango.
+        - `enemies`: Lista de enemigos activos.
+        - `projectiles`: Lista de proyectiles activos.
         """
-        current_time = time.time()  # Obtiene el tiempo actual en segundos
-        if current_time - self.last_attack_time >= self.attack_speed:
-            # Verificar si el enemigo está dentro del rango
-            tower_x = INICIO_X + self.position[0] * (10 + GAP_x) - self.position[1] * (10 + GAP_x)
-            tower_y = INICIO_Y+ self.position[0] * (5 + GAP_y) + self.position[1] * (5 + GAP_y)
-            enemy_x, enemy_y = enemy.get_screen_position()
+        if self.is_on_cooldown():
+            return  # No atacar si está en cooldown
 
-            distance = math.sqrt((tower_x - enemy_x)**2 + (tower_y - enemy_y)**2)
-            if distance <= self.range:
-                print(f"Torre en {self.position} ataca al enemigo en {enemy.grid_position}")
-                projectiles.append(Projectile((tower_x+7, tower_y-4), (enemy_x, enemy_y)))
-                self.last_attack_time = current_time  # Registrar el tiempo del disparo
+        # Buscar el primer enemigo dentro del rango
+        for enemy in enemies:
+            if self.is_in_range(enemy):
+                # Crear un proyectil hacia el enemigo
+                projectile = Projectile(self.get_screen_position(), enemy.get_screen_position(), speed=150)
+                projectiles.append(projectile)
+                enemy.take_damage(self.damage,player)  # Infligir daño directamente
+                self.start_cooldown()  # Iniciar el cooldown de la torre
+                break
+    def is_on_cooldown(self):
+        """
+        Verifica si la torre está en tiempo de recarga (cooldown).
+        """
+        current_time = time.time()  # Tiempo actual en segundos
+        return current_time - self.last_attack_time < self.attack_speed
 
+    def start_cooldown(self):
+        """
+        Inicia el cooldown al atacar.
+        """
+        self.last_attack_time = time.time()
+    def is_in_range(self, enemy):
+        """
+        Verifica si un enemigo está dentro del rango de ataque.
+        """
+        tower_x, tower_y = self.get_screen_position()
+        enemy_x, enemy_y = enemy.get_screen_position()
+        distance = math.sqrt((tower_x - enemy_x) ** 2 + (tower_y - enemy_y) ** 2)
+        return distance <= self.range
+
+    def get_screen_position(self):
+        """
+        Obtiene la posición de la torre en la pantalla.
+        """
+        grid_x, grid_y = self.position
+        screen_x = INICIO_X + grid_x * (10 + GAP_x) - grid_y * (10 + GAP_x)
+        screen_y = INICIO_Y + grid_x * (5 + GAP_y) + grid_y * (5 + GAP_y)
+        return screen_x, screen_y

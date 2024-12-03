@@ -15,10 +15,10 @@ class Base:
         self.max_health = health  # Salud máxima para calcular la barra de vida
         self.animation = Animation(
             image_paths=image_paths,
-            position=(RES[0] - 110, 10),  # Esquina superior derecha
+            position=(RES[0] - 145, 5),  # Esquina superior derecha
             frame_duration=150,
             loop=True,
-            size= (60,60)
+            size= (140,140)
         )
     def take_damage(self, amount):
         """Reduce la salud de la base."""
@@ -33,7 +33,8 @@ class Base:
         self.animation.draw(screen)
         
         # Dibuja la barra de vida
-        bar_width = 80  # Ancho total de la barra
+        bar_width = 135  # Ancho total de la barra
+        BAR_X, BAR_Y = (RES[0] - 142,147)
         health_width = int((self.health / self.max_health) * bar_width)
-        pg.draw.rect(screen, (255, 0, 0), (RES[0] - 120, 70, bar_width, 10))  # Fondo rojo
-        pg.draw.rect(screen, (0, 255, 0), (RES[0] - 120, 70, health_width, 10))  # Salud restante
+        pg.draw.rect(screen, (255, 0, 0), (BAR_X, BAR_Y, bar_width, 10))  # Fondo rojo
+        pg.draw.rect(screen, (0, 255, 0), (BAR_X, BAR_Y, health_width, 10))  # Salud restante

@@ -16,12 +16,8 @@ class Player:
         return 100 + (self.level - 1) * 50
 
     def add_resources(self, amount):
-        """
-        Añade recursos al jugador.
-        - `amount`: Cantidad de recursos a añadir.
-        """
         self.resources += amount
-        print(f"Recibiste {amount} recursos. Total: {self.resources}")
+        print(f"Recursos añadidos: {amount}. Recursos totales: {self.resources}")
 
     def spend_resources(self, amount):
         """
