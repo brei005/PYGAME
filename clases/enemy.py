@@ -87,7 +87,7 @@ class AnimatedEnemy:
         new_distance_screen = math.sqrt(
             (next_tile_screen[0] - self.position[0])**2 + (next_tile_screen[1] - self.position[1])**2
         )
-        if new_distance_screen < 2:  # Ajusta la tolerancia según sea necesario
+        if new_distance_screen < 10:  # Ajusta la tolerancia según sea necesario
             self.path_index += 1
             if self.path_index < len(self.grid_path):
                 self.grid_position = self.grid_path[self.path_index]

@@ -26,8 +26,8 @@ ENEMIES_BY_LEVEL = {
                     ],
                 },
                 "reward": 10,
-                "health": 50,
-                "speed": 10,
+                "health": 10,
+                "speed": 200,
                 "damage": 5,
                 "count": 3
             }
@@ -62,8 +62,8 @@ ENEMIES_BY_LEVEL = {
                     ],
                 },
                 "reward": 20,
-                "health": 80,
-                "speed": 20,
+                "health": 10,
+                "speed": 120,
                 "damage": 10,
                 "count": 2
             }
@@ -98,8 +98,8 @@ ENEMIES_BY_LEVEL = {
                     ],
                 },
                 "reward": 30,
-                "health": 120,
-                "speed": 80,
+                "health": 10,
+                "speed": 180,
                 "damage": 15,
                 "count": 2
             }

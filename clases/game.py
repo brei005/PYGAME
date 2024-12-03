@@ -109,12 +109,12 @@ class Game:
         """
         Carga el mapa, las texturas y las oleadas de enemigos para el nivel dado.
         """
-        self.show_level_screen(level)
         level_config = ENEMIES_BY_LEVEL[level]
         self.mapa = Mapa(f"maps/map{level}.txt", level_config["terrain_texture"])  # Pasar textura específica
         self.enemy_group = []
         self.projectiles = []
 
+        # Cargar oleadas de enemigos
         self.waves = []
         for wave_index in range(level_config["waves"]):
             wave_enemies = []
@@ -133,6 +133,7 @@ class Game:
             self.waves.append(Wave(wave_enemies, spawn_rate=level_config["time_between_waves"]))
         self.current_wave_index = 0
         print(f"Nivel {level} cargado con {len(self.waves)} oleadas.")
+
 
     def update(self):
         """
@@ -257,6 +258,7 @@ class Game:
         """
         while True:
             if self.start_screen.handle_events():
+                
                 break
             self.start_screen.draw()
             self.clock.tick(FPS)
@@ -292,7 +294,7 @@ class Game:
         pg.display.flip()  # Actualizar la pantalla
 
         # Esperar unos segundos
-        pg.time.wait(1000)  # Esperar 2 segundos
+        pg.time.wait(300)  # Esperar 2 segundos
 
         self.is_transitioning = False  # Desactivar la bandera de transición
 
@@ -300,11 +302,17 @@ class Game:
         """
         Ejecuta el juego.
         """
-        self.show_start_screen()  # Muestra la pantalla de inicio
-        self.show_level_screen(self.current_level)  # Muestra la pantalla del nivel después de iniciar el juego
+        # Mostrar la pantalla de inicio
+        self.show_start_screen()
 
+        # Mostrar pantalla de nivel 1 después de la pantalla de inicio
+        self.show_level_screen(self.current_level)
+
+        # Cargar el nivel 1
+        self.load_level(self.current_level)
+
+        # Entrar en el bucle principal del juego
         while True:
             self.check_events()
             self.update()
             self.draw()
-
