@@ -27,9 +27,9 @@ ENEMIES_BY_LEVEL = {
                 },
                 "reward": 10,
                 "health": 10,
-                "speed": 200,
-                "damage": 5,
-                "count": 3
+                "speed": 80,
+                "damage": 1,
+                "count": 2
             }
         ],
         "waves": 2,  # Número de oleadas

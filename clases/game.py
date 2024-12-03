@@ -147,6 +147,11 @@ class Game:
         self.base.animation.update()
         self.mapa.vicuna_animation.update()
 
+        # Verificar si la base está destruida
+        if self.base.health <= 0:
+            self.reset_game()  # Reiniciar el juego
+            return
+
        # Actualizar oleadas
         if self.current_wave_index < len(self.waves):
             current_wave = self.waves[self.current_wave_index]
@@ -297,6 +302,28 @@ class Game:
         pg.time.wait(300)  # Esperar 2 segundos
 
         self.is_transitioning = False  # Desactivar la bandera de transición
+    def reset_game(self):
+        """
+        Reinicia el juego cuando la base es destruida.
+        """
+        print("La base ha sido destruida. Reiniciando el juego...")
+        self.current_level = 1
+        self.player = Player(level=self.current_level)
+        self.base = Base(
+            position=self.mapa.base_position,
+            image_paths=[
+                "assets/simbolo/vicuna1.png",
+                "assets/simbolo/vicuna2.png",
+                "assets/simbolo/vicuna3.png",
+                "assets/simbolo/vicuna4.png",
+                "assets/simbolo/vicuna5.png"
+            ],
+            health=100
+        )
+        self.towers = []
+        self.projectiles = []
+        self.load_level(self.current_level)
+        self.show_level_screen(self.current_level)
 
     def run(self):
         """
