@@ -13,15 +13,16 @@ class Wave:
     def update(self, dt, active_enemies):
         """
         Actualiza la oleada.
-        - `dt`: Delta time desde el último frame.
-        - `active_enemies`: Lista de enemigos activos en el mapa.
         """
         self.spawn_timer += dt
         if self.spawn_timer >= self.spawn_rate and self.index < len(self.enemies):
             # Spawnear un enemigo
-            active_enemies.append(self.enemies[self.index])
+            enemy = self.enemies[self.index]
+            if enemy.path_index == 0:  # Solo añadir si aún no está activo
+                active_enemies.append(enemy)
             self.index += 1
-            self.spawn_timer = 0  # Reiniciar el temporizador
+            self.spawn_timer = 0
+
 
     def is_finished(self):
         """

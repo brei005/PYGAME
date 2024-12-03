@@ -20,6 +20,8 @@ class Game:
         self.clock = pg.time.Clock()
         self.display = pg.Surface(DISPLAY_SIZE)
         self.wave_timer = 0 
+        self.is_transitioning = False
+
         # Fuentes
         self.font_title = pg.font.Font("font/ARCADECLASSIC.ttf", 72)
         self.font_option = pg.font.Font("font/ARCADECLASSIC.ttf", 48)
@@ -105,60 +107,58 @@ class Game:
 
     def load_level(self, level):
         """
-        Carga el mapa y configura las oleadas de enemigos para el nivel.
+        Carga el mapa, las texturas y las oleadas de enemigos para el nivel dado.
         """
-        self.mapa = Mapa(f"maps/map{level}.txt")
-        self.enemy_group = []  # Lista de enemigos activos
-        self.projectiles = []  # Lista de proyectiles activos
+        self.show_level_screen(level)
+        level_config = ENEMIES_BY_LEVEL[level]
+        self.mapa = Mapa(f"maps/map{level}.txt", level_config["terrain_texture"])  # Pasar textura específica
+        self.enemy_group = []
+        self.projectiles = []
 
-        # Obtener la configuración del nivel
-        level_config = ENEMIES_BY_LEVEL.get(level)
-        if not level_config:
-            raise ValueError(f"No se encontró la configuración para el nivel {level}")
-
-        path = self.mapa.path  # Camino del mapa
-
-        # Crear oleadas según la configuración del nivel
         self.waves = []
-        for _ in range(level_config["waves"]):  # Número de oleadas
-            enemies = []
+        for wave_index in range(level_config["waves"]):
+            wave_enemies = []
             for enemy_config in level_config["enemies"]:
-                for _ in range(enemy_config["count"]):  # Cantidad de enemigos
-                    enemies.append(
-                        AnimatedEnemy(
-                            grid_path=path,
-                            animation_frames_by_direction=enemy_config["frames_by_direction"],
-                            reward=enemy_config["reward"],
-                            health=enemy_config["health"],
-                            speed=enemy_config["speed"],
-                            damage=enemy_config["damage"],
-                        )
+                wave_enemies.extend([
+                    AnimatedEnemy(
+                        grid_path=self.mapa.path,
+                        animation_frames_by_direction=enemy_config["frames_by_direction"],
+                        reward=enemy_config["reward"],
+                        health=enemy_config["health"],
+                        speed=enemy_config["speed"],
+                        damage=enemy_config["damage"]
                     )
-            # Crear la oleada con los enemigos y la frecuencia de spawn
-            self.waves.append(Wave(enemies, spawn_rate=2.0))  # Cambia el spawn_rate si es necesario
-
-        self.current_wave_index = 0  # Reiniciar al inicio de las oleadas
-        self.wave_timer = 0  # Temporizador entre oleadas
+                    for _ in range(enemy_config["count"])
+                ])
+            self.waves.append(Wave(wave_enemies, spawn_rate=level_config["time_between_waves"]))
+        self.current_wave_index = 0
+        print(f"Nivel {level} cargado con {len(self.waves)} oleadas.")
 
     def update(self):
         """
         Actualiza el estado del juego.
         """
+        if self.is_transitioning:
+            return  # Pausar actualizaciones durante la transición
+
         dt = self.clock.tick(FPS) / 1000.0
         self.coin_animation.update()
         self.base.animation.update()
         self.mapa.vicuna_animation.update()
 
-        # Actualizar oleadas
+       # Actualizar oleadas
         if self.current_wave_index < len(self.waves):
             current_wave = self.waves[self.current_wave_index]
-            if current_wave.is_finished():  # Si la oleada actual terminó
-                self.wave_timer += dt
-                if self.wave_timer >= 3.0:  # Tiempo entre oleadas (ajústalo según sea necesario)
-                    self.current_wave_index += 1
-                    self.wave_timer = 0
+            current_wave.update(dt, self.enemy_group)
+            if current_wave.is_finished():
+                print("acabó la wave")
+                self.current_wave_index += 1
+        elif not self.enemy_group and self.current_wave_index >= len(self.waves):
+            self.current_level += 1
+            if self.current_level in ENEMIES_BY_LEVEL:
+                self.load_level(self.current_level)
             else:
-                current_wave.update(dt, self.enemy_group)
+                self.show_game_over_screen()
 
         # Actualizar enemigos
         for enemy in self.enemy_group[:]:
@@ -179,7 +179,16 @@ class Game:
         # Actualizar torres
         for tower in self.towers:
             tower.attack(self.enemy_group, self.projectiles, self.player)
-
+    def advance_to_next_level(self):
+        """
+        Pasa al siguiente nivel o termina el juego si no hay más niveles.
+        """
+        self.current_level += 1
+        if self.current_level > len(ENEMIES_BY_LEVEL):  # Si no hay más niveles
+            self.end_game()  # Termina el juego
+        else:
+            self.load_level(self.current_level)  # Carga el siguiente nivel
+            print(f"Nivel {self.current_level} cargado.")
     def check_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -222,7 +231,7 @@ class Game:
         """
         Dibuja el estado del juego en la pantalla.
         """
-        self.display.fill((0, 0, 0))
+        self.display.fill((40, 40, 40))
         self.mapa.draw(self.display)
         for tower in self.towers:
             tower.draw(self.display)
@@ -251,13 +260,51 @@ class Game:
                 break
             self.start_screen.draw()
             self.clock.tick(FPS)
+    def show_game_over_screen(self):
+        """
+        Muestra una pantalla de "Juego Terminado".
+        """
+        game_over_font = pg.font.Font("font/ARCADECLASSIC.ttf", 64)
+        message = "¡Juego Completado!"
+        text_surface = game_over_font.render(message, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(RES[0] // 2, RES[1] // 2))
+
+        self.screen.fill((0, 0, 0))  # Fondo negro
+        self.screen.blit(text_surface, text_rect)
+        pg.display.flip()
+        pg.time.wait(5000)  # Esperar 5 segundos
+        pg.quit()
+        sys.exit()
+    def show_level_screen(self, level):
+        """
+        Muestra una pantalla de transición entre niveles y pausa el juego hasta que termine.
+        """
+        self.is_transitioning = True  # Activar la bandera de transición
+
+        transition_font = pg.font.Font("font/ARCADECLASSIC.ttf", 64)  # Fuente para el mensaje
+        message = f"Nivel {level}"  # Mensaje de nivel
+        text_surface = transition_font.render(message, True, (255, 255, 255))  # Texto en blanco
+        text_rect = text_surface.get_rect(center=(RES[0] // 2, RES[1] // 2))  # Centrar el texto
+
+        # Pantalla negra con el mensaje
+        self.screen.fill((0, 0, 0))  # Fondo negro
+        self.screen.blit(text_surface, text_rect)  # Dibujar el texto
+        pg.display.flip()  # Actualizar la pantalla
+
+        # Esperar unos segundos
+        pg.time.wait(1000)  # Esperar 2 segundos
+
+        self.is_transitioning = False  # Desactivar la bandera de transición
 
     def run(self):
         """
         Ejecuta el juego.
         """
-        self.show_start_screen()
+        self.show_start_screen()  # Muestra la pantalla de inicio
+        self.show_level_screen(self.current_level)  # Muestra la pantalla del nivel después de iniciar el juego
+
         while True:
             self.check_events()
             self.update()
             self.draw()
+
