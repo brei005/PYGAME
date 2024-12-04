@@ -27,7 +27,7 @@ ENEMIES_BY_LEVEL = {
                 },
                 "reward": 10,
                 "health": 10,
-                "speed": 80,
+                "speed": 40,
                 "damage": 1,
                 "count": 2
             }

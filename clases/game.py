@@ -22,6 +22,10 @@ class Game:
         self.wave_timer = 0 
         self.is_transitioning = False
 
+        self.background_image = pg.image.load("assets/fondoHC.jpg").convert()
+        self.background_image = pg.transform.scale(self.background_image, DISPLAY_SIZE)
+
+
         # Fuentes
         self.font_title = pg.font.Font("font/ARCADECLASSIC.ttf", 72)
         self.font_option = pg.font.Font("font/ARCADECLASSIC.ttf", 48)
@@ -53,7 +57,7 @@ class Game:
                 "assets/simbolo/vicuna4.png",
                 "assets/simbolo/vicuna5.png"
             ],
-            health=100
+            health=10
         )
         self.coin_animation = Animation(
             image_paths=[
@@ -237,7 +241,8 @@ class Game:
         """
         Dibuja el estado del juego en la pantalla.
         """
-        self.display.fill((40, 40, 40))
+        #self.display.fill((40, 40, 40))
+        self.display.blit(self.background_image, (0, 0))
         self.mapa.draw(self.display)
         for tower in self.towers:
             tower.draw(self.display)
@@ -272,7 +277,7 @@ class Game:
         Muestra una pantalla de "Juego Terminado".
         """
         game_over_font = pg.font.Font("font/ARCADECLASSIC.ttf", 64)
-        message = "¡Juego Completado!"
+        message = "Juego Completado!"
         text_surface = game_over_font.render(message, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(RES[0] // 2, RES[1] // 2))
 
@@ -299,7 +304,7 @@ class Game:
         pg.display.flip()  # Actualizar la pantalla
 
         # Esperar unos segundos
-        pg.time.wait(300)  # Esperar 2 segundos
+        pg.time.wait(400)  # Esperar 2 segundos
 
         self.is_transitioning = False  # Desactivar la bandera de transición
     def reset_game(self):
@@ -308,6 +313,7 @@ class Game:
         """
         print("La base ha sido destruida. Reiniciando el juego...")
         self.current_level = 1
+        self.player.resources = 100
         self.player = Player(level=self.current_level)
         self.base = Base(
             position=self.mapa.base_position,
@@ -318,12 +324,12 @@ class Game:
                 "assets/simbolo/vicuna4.png",
                 "assets/simbolo/vicuna5.png"
             ],
-            health=100
+            health=10
         )
         self.towers = []
         self.projectiles = []
         self.load_level(self.current_level)
-        self.show_level_screen(self.current_level)
+        #self.show_level_screen(self.current_level)
 
     def run(self):
         """
@@ -333,7 +339,7 @@ class Game:
         self.show_start_screen()
 
         # Mostrar pantalla de nivel 1 después de la pantalla de inicio
-        self.show_level_screen(self.current_level)
+        #self.show_level_screen(self.current_level)
 
         # Cargar el nivel 1
         self.load_level(self.current_level)
